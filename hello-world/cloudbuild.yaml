@@ -1,0 +1,34 @@
+# om namah shivay
+
+secrets:
+- kmsKeyName: projects/[PROJECT_ID]/locations/global/keyRings/[KEY_RING_NAME]/cryptoKeys/[KEY_NAME]
+  secretEnv:
+    AWS_ACCESS_KEY_ID: [BASE_64_ENCRYPTED_AWS_ACCESS_KEY_ID]
+    AWS_SECRET_ACCESS_KEY: [BASE_64_ENCRYPTED_AWS_SECRET_ACCESS_KEY]
+
+steps:
+
+# zip the source code
+- name: gcr.io/$PROJECT_ID/aws-cli
+  args:
+  - zip
+  - -r
+  - hello-world.zip
+  - .
+  dir: /workspace
+
+# deploy the function
+- name: gcr.io/$PROJECT_ID/aws-cli
+  args:
+  - aws
+  - lambda
+  - update-function-code
+  - --function-name
+  - hello-world
+  - --zip-file
+  - fileb://hello-world.zip
+  env:
+  - AWS_DEFAULT_REGION=us-east-1
+  secretEnv:
+  - AWS_ACCESS_KEY_ID
+  - AWS_SECRET_ACCESS_KEY
